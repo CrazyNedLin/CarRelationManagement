@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container mt-4">
+    <h1 class="mb-4">Query Customer Record</h1>
+    <form method="GET" class="mb-4">
+      {% csrf_token %}
+      <div class="mb-3">
+        {{ form.as_p }}
+      </div>
+      <button type="submit" class="btn btn-primary">搜尋</button>
+      <a href="{% url 'index' %}" class="btn btn-secondary ms-2">返回</a>
+    </form>
+
+    {% if results %}
+      <h2 class="mb-3">查詢結果</h2>
+      <div class="table-responsive">
+        <table class="table table-bordered">
+          <thead class="table-light">
+          <tr>
+            <th scope="col">客戶名稱</th>
+            <th scope="col">日期</th>
+            <th scope="col">車輛</th>
+            <th scope="col">服務內容</th>
+            <th scope="col">金額</th>
+          </tr>
+          </thead>
+          <tbody>
+          {% for record in results %}
+            <tr>
+              <td>{{ record.customer.name }}</td>
+              <td>{{ record.date }}</td>
+              <td>{{ record.vehicle }}</td>
+              <td>{{ record.service_content }}</td>
+              <td>{{ record.amount }}</td>
+            </tr>
+          {% endfor %}
+          <tr>
+            <td colspan="4" class="text-end"><strong>總計</strong></td>
+            <td><strong>{{ total_amount }}</strong></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="text-muted">無查詢結果。</p>
+    {% endif %}
+  </div>
+{% endblock %}

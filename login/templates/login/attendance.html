@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block css_content %}
+    <style>
+    .container .row {
+        height: 70vh;
+    }
+    .clock {
+        font-size: 2rem;
+        margin-bottom: 20px;
+    }
+    .clock-container {
+        text-align: center;
+    }
+    .btn-container {
+        text-align: center;
+        margin-top: 20px;
+    }
+    .btn-container button {
+        margin: 0 10px;
+    }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row justify-content-center align-items-center">
+            <div class="col-4 text-center">
+                <!-- 時鐘顯示區 -->
+                <div class="clock-container">
+                    <div id="clock" class="clock"></div>
+                </div>
+
+                <!-- 表單區域 -->
+                <form id="attendanceForm" method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="accountInput" class="form-label">Account</label>
+                        <input type="text" class="form-control" id="accountInput" name="account">
+                    </div>
+
+                    <!-- 按鈕區域 -->
+                    <div class="btn-container">
+                        <button type="button" onclick="submitForm('check_in')" class="btn btn-success">Check In</button>
+                        <button type="button" onclick="submitForm('check_out')" class="btn btn-danger">Check Out</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 時鐘 JavaScript -->
+    <script>
+    function updateClock() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0'); // 月份從0開始，需加1
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+
+        const timeString = `${year}-${month}-${day} ${hours}:${minutes}`;
+        document.getElementById('clock').textContent = timeString;
+    }
+
+    setInterval(updateClock, 1000); // 每秒更新一次
+    updateClock(); // 頁面載入時立即更新一次
+
+    function submitForm(action) {
+        const form = document.getElementById('attendanceForm');
+        const formData = new FormData(form);
+        formData.append('action', action);
+
+        fetch('/attendance/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                window.location.href = '/attendance/'; // 重新導向回打卡頁面
+            } else if (response.status === 400) {
+                alert('Invalid account'); // 顯示錯誤消息
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+    </script>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Add Customer Record</h1>
+    <form method="GET" action="{% url 'search_by_license_plate' %}">
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" name="license_plate" placeholder="輸入車牌號碼" required>
+            <button class="btn btn-primary" type="submit">查詢</button>
+        </div>
+    </form>
+
+    {% if error_message %}
+    <div class="alert alert-danger">
+        {{ error_message }}
+    </div>
+    {% endif %}
+
+    {% if customer %}
+    <div class="alert alert-info">
+        <strong>顧客信息：</strong> {{ customer.name }} - {{ customer.phone }}
+    </div>
+    {% endif %}
+
+    <form method="POST" action="{% url 'add_customer_record' %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">Save Record</button>
+        <a href="{% url 'customer_record_list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

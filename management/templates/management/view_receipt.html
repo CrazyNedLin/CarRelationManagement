@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container mt-5">
+    <h2>查看收據或發票</h2>
+    <div class="card">
+      <div class="card-header">
+        支出項目: {{ expense.item }}
+      </div>
+      <div class="card-body">
+        <p><strong>日期:</strong> {{ expense.date }}</p>
+        <p><strong>金額:</strong> {{ expense.amount }}</p>
+        <p><strong>支付方式:</strong> {{ expense.get_payment_method_display }}</p>
+        <p><strong>支出分類:</strong> {{ expense.get_category_display }}</p>
+        <p><strong>備註:</strong> {{ expense.remarks }}</p>
+        <hr>
+        <h5>收據或發票圖片</h5>
+        <img src="{{ expense.receipt.url }}" class="img-fluid" alt="Receipt or Invoice Image">
+      </div>
+      <div class="card-footer">
+        <a href="{% url 'expense_list' %}" class="btn btn-primary">返回支出列表</a>
+      </div>
+    </div>
+  </div>
+{% endblock %}

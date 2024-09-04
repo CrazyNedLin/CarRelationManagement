@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container mt-5">
+    <h2 class="mb-4">查詢支出紀錄</h2>
+    <form method="post" class="row g-3">
+      {% csrf_token %}
+      <div class="col-md-6">
+        {{ form.as_p }}
+      </div>
+      <div class="col-12">
+        <button type="submit" class="btn btn-primary">查詢</button>
+      </div>
+    </form>
+
+    {% if expenses %}
+      <div class="table-responsive mt-4">
+        <table class="table table-bordered table-hover">
+          <thead class="table-light">
+          <tr>
+            <th>日期</th>
+            <th>支出項目</th>
+            <th>金額</th>
+            <th>支付方式</th>
+            <th>支出分類</th>
+            <th>收據</th>
+            <th>備註</th>
+          </tr>
+          </thead>
+          <tbody>
+          {% for expense in expenses %}
+            <tr>
+              <td>{{ expense.date }}</td>
+              <td>{{ expense.item }}</td>
+              <td>{{ expense.amount }}</td>
+              <td>{{ expense.get_payment_method_display }}</td>
+              <td>{{ expense.get_category_display }}</td>
+              <td>
+                <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal"
+                        data-bs-target="#receiptModal{{ expense.id }}">
+                  查看
+                </button>
+
+                <!-- Modal -->
+                <div class="modal fade" id="receiptModal{{ expense.id }}" tabindex="-1"
+                     aria-labelledby="receiptModalLabel{{ expense.id }}" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="receiptModalLabel{{ expense.id }}">收據或發票</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        <img src="{{ expense.receipt.url }}" class="img-fluid" alt="Receipt">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>{{ expense.remarks }}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="alert alert-warning mt-4" role="alert">
+        請輸入查詢條件並提交以顯示支出紀錄。
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}

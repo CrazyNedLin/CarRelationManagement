@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block css_content %}
+    <style>
+    .container .row {
+        height: 70vh;
+    }
+    .clock {
+        font-size: 2rem;
+        margin-bottom: 20px;
+    }
+    .clock-container {
+        text-align: center;
+    }
+    .btn-container {
+        text-align: center;
+        margin-top: 20px;
+    }
+    .btn-container button {
+        margin: 0 10px;
+    }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center align-items-center">
+        <div class="col-md-6">
+            <h1>Attendance Query</h1>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="form-group mb-3">
+                    <label for="year">Year:</label>
+                    <select id="year" name="year" class="form-select" required>
+                        {% for y in year_choices %}
+                        <option value="{{ y }}">{{ y }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="month">Month:</label>
+                    <select id="month" name="month" class="form-select" required>
+                        {% for m in month_choices %}
+                        <option value="{{ m }}">{{ m }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="btn-container">
+                    <button type="submit" class="btn btn-primary">Query</button>
+                </div>
+            </form>
+            {% if attendance_records %}
+            <h2 class="mt-5">Results for {{ year }}/{{ month }}:</h2>
+            <table class="table table-bordered mt-3">
+                <thead>
+                    <tr>
+                        <th>Account</th>
+                        <th>Check-in Time</th>
+                        <th>Check-out Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in attendance_records %}
+                    <tr>
+                        <td>{{ record.account }}</td>
+                        <td>{{ record.check_in_time }}</td>
+                        <td>{{ record.check_out_time }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
