@@ -11,6 +11,6 @@ urlpatterns = [
        name='add_customer_record'),
   path('search/', customer_views.search_by_license_plate,
        name='search_by_license_plate'),
-  path('records/', customer_views.customer_recordlist_view,
+  path('records/<str:customer_id>/', customer_views.customer_recordlist_view,
        name='customer_record_list'),
 ]

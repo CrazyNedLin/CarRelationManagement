@@ -7,9 +7,25 @@
         {% csrf_token %}
         <div class="mb-3">
             <label for="phone" class="form-label">Phone:</label>
-            <input type="text" id="phone" name="phone" class="form-control" placeholder="Enter phone number" required>
+            <input type="text" id="phone" name="phone" class="form-control" placeholder="Enter phone number">
         </div>
+        <div class="mb-3">
+            <label for="plate_number" class="form-label">License Plate:</label>
+            <input type="text" id="plate_number" name="plate_number" class="form-control"
+                   placeholder="Enter license plate number"
+                   oninput="formatPlateNumber()">
+        </div>
+        <p class="text-muted">Please enter either a phone number or a license plate number.</p>
         <button type="submit" class="btn btn-primary">Search</button>
     </form>
 </div>
+
+<!-- 加入 JavaScript 在頁面底部 -->
+<script>
+    function formatPlateNumber() {
+        var input = document.getElementById('plate_number');
+        // 將輸入轉換為大寫並移除所有非大寫字母和數字的字符
+        input.value = input.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    }
+</script>
 {% endblock %}

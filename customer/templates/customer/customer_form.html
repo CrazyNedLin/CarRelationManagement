@@ -38,7 +38,28 @@
       <h2 class="mb-3">Vehicles</h2>
       <div class="table-responsive">
         <table class="table table-bordered">
-          {{ vehicle_formset.as_table }}
+          <!-- 表格標題 -->
+          <thead>
+          <tr>
+            <th>Brand</th>
+            <th>Model</th>
+            <th>Plate number</th>
+            <th>Delete</th>
+          </tr>
+          </thead>
+          <tbody>
+          <!-- 渲染每筆表單資料 -->
+          {% for form in vehicle_formset %}
+            <tr>
+              <td>{{ form.brand }}</td>
+              <td>{{ form.model }}</td>
+              <td>{{ form.plate_number }}</td>
+              <td>{{ form.DELETE }}</td>
+              <!-- 確保渲染表單隱藏的 ID 欄位 -->
+              {{ form.id }}
+            </tr>
+          {% endfor %}
+          </tbody>
         </table>
       </div>
 
@@ -50,4 +71,11 @@
       </div>
     </form>
   </div>
+
+  <!-- JavaScript to format plate_number -->
+  <script>
+    function formatPlateNumber(input) {
+      input.value = input.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    }
+  </script>
 {% endblock %}

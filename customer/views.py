@@ -7,11 +7,22 @@ from .models import Customer, Vehicle, CustomerRecord
 def customer_search(request):
   if request.method == 'POST':
     phone = request.POST.get('phone')
-    try:
-      customer = Customer.objects.get(phone=phone)
-      return redirect('customer_maintain', customer_id=customer.customer_id)
-    except Customer.DoesNotExist:
-      return redirect('customer_add')
+    plate_number = request.POST.get('plate_number')
+
+    if phone:
+      try:
+        customer = Customer.objects.get(phone=phone)
+        return redirect('customer_maintain', customer_id=customer.customer_id)
+      except Customer.DoesNotExist:
+        return redirect('customer_add')
+
+    elif plate_number:
+      try:
+        vehicle = Vehicle.objects.get(plate_number=plate_number)
+        customer = vehicle.customer
+        return redirect('customer_maintain', customer_id=customer.customer_id)
+      except Vehicle.DoesNotExist:
+        return redirect('customer_add')
 
   return render(request, './customer/customer_search.html')
 
@@ -57,7 +68,9 @@ def customer_add(request):
 
 def customer_maintain(request, customer_id):
   customer = get_object_or_404(Customer, customer_id=customer_id)
-  referral_customers = Customer.objects.exclude(customer_id=customer.customer_id)
+  referral_customers = Customer.objects.exclude(
+      customer_id=customer.customer_id
+  ).exclude(referral=customer)
 
   if request.method == 'POST':
     form = CustomerForm(request.POST, instance=customer)
@@ -100,7 +113,8 @@ def customer_record_create_view(request):
       record = form.save(commit=False)
       record.customer = customer
       record.save()
-      return redirect('customer_record_list')  # 保存成功後重定向到紀錄列表頁面
+      return redirect('customer_record_list',
+                      customer_id=customer.customer_id)  # 保存成功後重定向到紀錄列表頁面
     else:
       # 如果表單未通過驗證，顯示表單錯誤
       print(form.errors)
@@ -129,7 +143,13 @@ def search_by_license_plate(request):
                  'error_message': error_message})
 
 
-def customer_recordlist_view(request):
-  records = CustomerRecord.objects.all()
+def customer_recordlist_view(request, customer_id=None):
+  if customer_id:
+    # 根據消費者 ID 過濾紀錄
+    records = CustomerRecord.objects.filter(customer__customer_id=customer_id)
+    customer = Customer.objects.get(customer_id=customer_id)  # 取得消費者信息
+  else:
+    records = CustomerRecord.objects.all()
+    customer = None
   return render(request, './customer/customer_record_list.html',
                 {'records': records})
