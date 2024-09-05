@@ -19,6 +19,10 @@
     <orderEntry type="library" name="bootstrap" level="application" />
     <orderEntry type="library" name="@popperjs/core" level="application" />
   </component>
+  <component name="PyDocumentationSettings">
+    <option name="format" value="GOOGLE" />
+    <option name="myDocStringFormat" value="Google" />
+  </component>
   <component name="TemplatesService">
     <option name="TEMPLATE_CONFIGURATION" value="Django" />
     <option name="TEMPLATE_FOLDERS">

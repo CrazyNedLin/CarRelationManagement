@@ -1,28 +1,53 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container mt-4">
+  <div class="container mt-4">
     <h1 class="mb-4">
-        {% if mode == 'add' %}Add{% elif mode == 'maintain' %}Maintain{% endif %} Customer
+      {% if mode == 'add' %}Add{% elif mode == 'maintain' %}Maintain{% endif %} Customer
     </h1>
     <form method="POST">
-        {% csrf_token %}
+      {% csrf_token %}
+      <div class="mb-4">
+        {{ form.as_p }}
+      </div>
+
+      <!-- Referral Field -->
+      <div class="mb-4">
+        <label for="referral_id" class="form-label">Referral (Introducer)</label>
+        <select id="referral_id" name="referral_id" class="form-select">
+          <option value="">Select a referral</option>
+          {% for ref_customer in referral_customers %}
+            <option value="{{ ref_customer.id }}"
+                    {% if customer and customer.referral and customer.referral.id == ref_customer.id %}selected{% endif %}>
+              {{ ref_customer.name }} ({{ ref_customer.phone }})
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- 顯示目前的點數 -->
+      {% if mode == 'maintain' %}
         <div class="mb-4">
-            {{ form.as_p }}
+          <label class="form-label">Current Points</label>
+          <p>{{ customer.points }}</p>
         </div>
-        {{ vehicle_formset.management_form }}
-        <h2 class="mb-3">Vehicles</h2>
-        <div class="table-responsive">
-            <table class="table table-bordered">
-                {{ vehicle_formset.as_table }}
-            </table>
-        </div>
-        <div class="d-flex justify-content-between mt-4">
-            <button type="submit" class="btn btn-success">
-                {% if mode == 'add' %}Add{% elif mode == 'maintain' %}Update{% endif %}
-            </button>
-            <a href="{% url 'customer_search' %}" class="btn btn-secondary">Exit</a>
-        </div>
+      {% endif %}
+
+      <!-- Vehicle Formset -->
+      {{ vehicle_formset.management_form }}
+      <h2 class="mb-3">Vehicles</h2>
+      <div class="table-responsive">
+        <table class="table table-bordered">
+          {{ vehicle_formset.as_table }}
+        </table>
+      </div>
+
+      <div class="d-flex justify-content-between mt-4">
+        <button type="submit" class="btn btn-success">
+          {% if mode == 'add' %}Add{% elif mode == 'maintain' %}Update{% endif %}
+        </button>
+        <a href="{% url 'customer_search' %}" class="btn btn-secondary">Exit</a>
+      </div>
     </form>
-</div>
+  </div>
 {% endblock %}

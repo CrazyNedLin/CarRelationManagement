@@ -1,7 +1,7 @@
-from django.shortcuts import render
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Customer, Vehicle, CustomerRecord
+
 from .forms import CustomerForm, VehicleFormSet, CustomerRecordForm
+from .models import Customer, Vehicle, CustomerRecord
 
 
 def customer_search(request):
@@ -17,13 +17,31 @@ def customer_search(request):
 
 
 def customer_add(request):
+  referral_customers = Customer.objects.all()  # 可以作為介紹人的顧客清單
+
   if request.method == 'POST':
     form = CustomerForm(request.POST)
     vehicle_formset = VehicleFormSet(request.POST, request.FILES)
     if form.is_valid() and vehicle_formset.is_valid():
-      customer = form.save()
+      # 先保存 customer，但不提交到數據庫
+      customer = form.save(commit=False)
+
+      # 設定介紹人
+      referral_id = request.POST.get('referral_id')
+      if referral_id:
+        try:
+          referral = Customer.objects.get(id=referral_id)
+          customer.referral = referral
+        except Customer.DoesNotExist:
+          referral = None
+
+      # 現在將 customer 保存到數據庫
+      customer.save()
+
+      # 將 vehicle_formset 與該 customer 關聯
       vehicle_formset.instance = customer
       vehicle_formset.save()
+
       return redirect('customer_search')
   else:
     form = CustomerForm()
@@ -33,28 +51,43 @@ def customer_add(request):
     'form': form,
     'vehicle_formset': vehicle_formset,
     'mode': 'add',
+    'referral_customers': referral_customers,
   })
 
 
 def customer_maintain(request, customer_id):
   customer = get_object_or_404(Customer, customer_id=customer_id)
-  vehicle_formset = VehicleFormSet(instance=customer)
+  referral_customers = Customer.objects.exclude(customer_id=customer.customer_id)
+
   if request.method == 'POST':
     form = CustomerForm(request.POST, instance=customer)
     vehicle_formset = VehicleFormSet(request.POST, request.FILES,
                                      instance=customer)
+
     if form.is_valid() and vehicle_formset.is_valid():
-      form.save()
+      customer = form.save(commit=False)
+
+      referral_id = request.POST.get('referral_id')
+      if referral_id:
+        try:
+          referral = Customer.objects.get(id=referral_id)
+          customer.referral = referral
+        except Customer.DoesNotExist:
+          referral = None
+
+      customer.save()
       vehicle_formset.save()
       return redirect('customer_search')
   else:
     form = CustomerForm(instance=customer)
+    vehicle_formset = VehicleFormSet(instance=customer)  # 初始化 formset
 
   return render(request, './customer/customer_form.html', {
     'form': form,
     'vehicle_formset': vehicle_formset,
     'customer': customer,
     'mode': 'maintain',
+    'referral_customers': referral_customers,
   })
 
 
