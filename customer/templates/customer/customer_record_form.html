@@ -28,7 +28,7 @@
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit" class="btn btn-success">Save Record</button>
-        <a href="{% url 'customer_record_list' %}" class="btn btn-secondary">Cancel</a>
+        <a href="{% url 'index' %}" class="btn btn-secondary">Cancel</a>
     </form>
 </div>
 

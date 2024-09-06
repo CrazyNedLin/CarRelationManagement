@@ -33,6 +33,8 @@ def customer_add(request):
   if request.method == 'POST':
     form = CustomerForm(request.POST)
     vehicle_formset = VehicleFormSet(request.POST, request.FILES)
+    print(vehicle_formset.errors)
+
     if form.is_valid() and vehicle_formset.is_valid():
       # 先保存 customer，但不提交到數據庫
       customer = form.save(commit=False)
@@ -115,8 +117,7 @@ def customer_record_create_view(request):
         record = form.save(commit=False)
         record.customer = customer
         record.save()
-        return redirect('customer_record_list',
-                        customer_id=customer.customer_id)
+        return redirect('customer_record_list_by_customer', customer_id=customer.customer_id)
       else:
         print("Vehicle does not have an associated customer.")  # 調試語句
         return redirect('customer_search')  # 或其他適當的處理
@@ -130,6 +131,7 @@ def customer_record_create_view(request):
 
 def search_by_license_plate(request):
   license_plate = request.GET.get('license_plate')
+  customer = None
   vehicle = None
   form = CustomerRecordForm()
   error_message = None
@@ -148,7 +150,17 @@ def search_by_license_plate(request):
                  'error_message': error_message})
 
 
-def customer_recordlist_view(request):
-  records = CustomerRecord.objects.all()
+def customer_recordlist_view(request, customer_id=None):
+  if customer_id:
+    # 根據消費者 ID 過濾紀錄
+    records = CustomerRecord.objects.filter(customer__customer_id=customer_id)
+    customer = Customer.objects.get(customer_id=customer_id)  # 取得消費者信息
+  else:
+    records = CustomerRecord.objects.all()
+    customer = None
+
   return render(request, './customer/customer_record_list.html',
-                {'records': records})
+                {'records': records, 'customer': customer})
+
+
+

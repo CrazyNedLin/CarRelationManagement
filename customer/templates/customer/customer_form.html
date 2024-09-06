@@ -53,11 +53,7 @@
             <tr>
               <td>{{ form.brand }}</td>
               <td>{{ form.model }}</td>
-              <td>
-                <input type="text" name="{{ form.plate_number.name }}"
-                       id="{{ form.plate_number.id_for_label }}"
-                       value="{{ form.plate_number.value }}" oninput="formatPlateNumber(this)"/>
-              </td>
+              <td>{{ form.plate_number }}</td>
               <td>{{ form.DELETE }}</td>
               <!-- 確保渲染表單隱藏的 ID 欄位 -->
               {{ form.id }}
@@ -78,8 +74,13 @@
 
   <!-- JavaScript to format plate_number -->
   <script>
-    function formatPlateNumber(input) {
-      input.value = input.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-    }
+    document.addEventListener('DOMContentLoaded', function () {
+      var plateNumberInputs = document.querySelectorAll('input[name$="plate_number"]');
+      plateNumberInputs.forEach(function (input) {
+        input.addEventListener('input', function () {
+          input.value = input.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+        });
+      });
+    });
   </script>
 {% endblock %}
