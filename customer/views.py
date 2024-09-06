@@ -110,13 +110,17 @@ def customer_record_create_view(request):
     if form.is_valid():
       vehicle = form.cleaned_data['vehicle']
       customer = vehicle.customer
-      record = form.save(commit=False)
-      record.customer = customer
-      record.save()
-      return redirect('customer_record_list',
-                      customer_id=customer.customer_id)  # 保存成功後重定向到紀錄列表頁面
+      if customer:  # 確保 customer 存在
+        print(f"Customer ID: {customer.customer_id}")  # 調試語句
+        record = form.save(commit=False)
+        record.customer = customer
+        record.save()
+        return redirect('customer_record_list',
+                        customer_id=customer.customer_id)
+      else:
+        print("Vehicle does not have an associated customer.")  # 調試語句
+        return redirect('customer_search')  # 或其他適當的處理
     else:
-      # 如果表單未通過驗證，顯示表單錯誤
       print(form.errors)
   else:
     form = CustomerRecordForm()
@@ -134,22 +138,17 @@ def search_by_license_plate(request):
     try:
       vehicle = Vehicle.objects.get(plate_number=license_plate)
       form.fields['vehicle'].initial = vehicle.id
+      customer = vehicle.customer
     except Vehicle.DoesNotExist:
       error_message = '找不到相關車輛信息'
+      customer = None
 
   return render(request, './customer/customer_record_form.html',
-                {'form': form, 'vehicle': vehicle,
-                 'customer': vehicle.customer if vehicle else None,
+                {'form': form, 'vehicle': vehicle, 'customer': customer,
                  'error_message': error_message})
 
 
-def customer_recordlist_view(request, customer_id=None):
-  if customer_id:
-    # 根據消費者 ID 過濾紀錄
-    records = CustomerRecord.objects.filter(customer__customer_id=customer_id)
-    customer = Customer.objects.get(customer_id=customer_id)  # 取得消費者信息
-  else:
-    records = CustomerRecord.objects.all()
-    customer = None
+def customer_recordlist_view(request):
+  records = CustomerRecord.objects.all()
   return render(request, './customer/customer_record_list.html',
                 {'records': records})
