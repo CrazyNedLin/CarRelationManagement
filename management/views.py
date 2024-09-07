@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django.contrib import messages
 from django.db.models import Q
 from django.db.models import Sum
 from django.shortcuts import render, redirect, get_object_or_404
@@ -66,6 +67,14 @@ def customer_record_query(request):
         'total_amount': total_amount,
       }
   )
+
+
+def delete_customer_record(request, record_id):
+  record = get_object_or_404(CustomerRecord, id=record_id)
+  if request.method == 'POST':
+    record.delete()
+    messages.success(request, '記錄已成功刪除。')
+  return redirect('customer_record_query')
 
 
 def create_expense(request):

@@ -23,6 +23,7 @@
             <th scope="col">車輛</th>
             <th scope="col">服務內容</th>
             <th scope="col">金額</th>
+            <th scope="col">操作</th>  <!-- 新增一欄 -->
           </tr>
           </thead>
           <tbody>
@@ -33,10 +34,16 @@
               <td>{{ record.vehicle }}</td>
               <td>{{ record.service_content }}</td>
               <td>{{ record.amount }}</td>
+              <td>
+                <form method="POST" action="{% url 'delete_customer_record' record.id %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-danger btn-sm">刪除</button>
+                </form>
+              </td>  <!-- 操作欄結束 -->
             </tr>
           {% endfor %}
           <tr>
-            <td colspan="4" class="text-end"><strong>總計</strong></td>
+            <td colspan="5" class="text-end"><strong>總計</strong></td>
             <td><strong>{{ total_amount }}</strong></td>
           </tr>
           </tbody>
